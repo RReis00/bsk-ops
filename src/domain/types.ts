@@ -1,6 +1,3 @@
-// src/domain/types.ts
-// Datas em epoch ms (UTC). IDs = crypto.randomUUID()
-
 export type ID = string;
 
 export type TaskStatus =

@@ -1,6 +1,8 @@
 import Dexie, { type EntityTable } from "dexie";
 import type {
+  ID,
   Task,
+  TaskStatus,
   ChecklistTemplate,
   ChecklistRun,
   Summary,
@@ -8,9 +10,31 @@ import type {
   KV,
 } from "../domain/types";
 
+// ------------------------
+// Constantes
+// ------------------------
 export const DB_NAME = "bsk_ops";
 export const DB_VERSION = 1;
 
+// ------------------------
+// Helpers
+// ------------------------
+export const newId = (): ID =>
+  typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+export const now = () => Date.now();
+
+export const dayBucket = (input: number | Date = new Date()): number => {
+  const d = typeof input === "number" ? new Date(input) : new Date(input);
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+};
+
+// ------------------------
+// Dexie DB (v1)
+// ------------------------
 export class BskOpsDB extends Dexie {
   tasks!: EntityTable<Task, "id">;
   checklistTemplates!: EntityTable<ChecklistTemplate, "id">;
@@ -35,3 +59,43 @@ export class BskOpsDB extends Dexie {
 }
 
 export const db = new BskOpsDB();
+
+// ------------------------
+// CRUD: Task
+// ------------------------
+export async function createTask(
+  input: Omit<Task, "id" | "createdAt" | "updatedAt"> & { id?: ID }
+): Promise<Task> {
+  const entity: Task = {
+    id: input.id ?? newId(),
+    title: input.title,
+    description: input.description,
+    status: input.status ?? "todo",
+    when: input.when ?? null,
+    dueAt: input.dueAt ?? null,
+    checklistTemplateId: input.checklistTemplateId ?? null,
+    createdAt: now(),
+    updatedAt: now(),
+  };
+  await db.tasks.add(entity);
+  return entity;
+}
+
+export async function updateTask(
+  id: ID,
+  changes: Partial<Omit<Task, "id" | "createdAt">>
+) {
+  await db.tasks.update(id, { ...changes, updatedAt: now() });
+}
+
+export async function deleteTask(id: ID) {
+  await db.tasks.delete(id);
+}
+
+export async function listTasksByStatus(status: TaskStatus) {
+  return db.tasks.where({ status }).reverse().sortBy("updatedAt");
+}
+
+export async function listTasksForDay(day: number) {
+  return db.tasks.where({ when: day }).sortBy("createdAt");
+}
