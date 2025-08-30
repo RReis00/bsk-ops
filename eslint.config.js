@@ -7,7 +7,15 @@ import tseslint from "typescript-eslint";
 import { globalIgnores } from "eslint/config";
 
 export default tseslint.config(
-  globalIgnores(["dist", "node_modules", "build"]),
+  globalIgnores([
+    "node_modules",
+    "dist",
+    "build",
+    "dev-dist",
+    ".vite",
+    "coverage",
+  ]),
+
   {
     files: ["**/*.{ts,tsx}"],
     extends: [
@@ -18,7 +26,7 @@ export default tseslint.config(
       reactRefresh.configs.vite,
     ],
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: "latest",
       globals: globals.browser,
       parserOptions: {
         project: ["./tsconfig.app.json", "./tsconfig.node.json"],
