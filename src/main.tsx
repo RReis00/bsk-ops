@@ -1,22 +1,16 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 import "./index.css";
-import App from "./App.tsx";
-
-import { registerSW } from "virtual:pwa-register";
+import App from "./App";
+import { initPWA } from "./pwaUpdate";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </StrictMode>
 );
 
-registerSW({
-  immediate: true,
-  onRegisteredSW(swUrl, registration) {
-    console.warn("[PWA] onRegisteredSW:", swUrl, registration);
-  },
-  onRegisterError(error) {
-    console.error("[PWA] register error:", error);
-  },
-});
+initPWA();

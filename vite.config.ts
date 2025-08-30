@@ -10,20 +10,17 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       strategies: "generateSW",
-      registerType: "autoUpdate",
+      registerType: "prompt",
       manifest: false,
-      devOptions: { enabled: true },
+      devOptions: { enabled: false },
       includeAssets: ["icons/icon-192.png", "icons/icon-512.png"],
-
       workbox: {
         navigateFallback: "/index.html",
-        clientsClaim: true,
-        skipWaiting: true,
-
+        clientsClaim: false,
+        skipWaiting: false,
         additionalManifestEntries: [
           { url: "/manifest.webmanifest", revision: null },
         ],
-
         runtimeCaching: [
           {
             urlPattern: ({ request }) =>
