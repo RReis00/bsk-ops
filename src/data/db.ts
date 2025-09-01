@@ -120,3 +120,112 @@ export async function kvSet(key: string, value: unknown) {
 export async function kvRemove(key: string) {
   await db.kv.delete(key);
 }
+
+// ------------------------
+// CRUD: ChecklistTemplate
+// ------------------------
+
+export async function createTemplate(
+  input: Omit<ChecklistTemplate, "id" | "createdAt" | "updatedAt"> & { id?: ID }
+): Promise<ChecklistTemplate> {
+  const entity: ChecklistTemplate = {
+    id: input.id ?? newId(),
+    name: input.name,
+    description: input.description,
+    version: input.version ?? 1,
+    steps: input.steps ?? [],
+    createdAt: now(),
+    updatedAt: now(),
+  };
+  await db.checklistTemplates.add(entity);
+  return entity;
+}
+
+export async function updateTemplate(
+  id: ID,
+  changes: Partial<Omit<ChecklistTemplate, "id" | "createdAt">>
+) {
+  await db.checklistTemplates.update(id, { ...changes, updatedAt: now() });
+}
+
+export async function deleteTemplate(id: ID) {
+  await db.checklistTemplates.delete(id);
+}
+
+export async function listTemplatesByNamePrefix(prefix: string) {
+  return db.checklistTemplates
+    .filter((t) => t.name.startsWith(prefix))
+    .sortBy("updatedAt");
+}
+
+// ------------------------
+// CRUD: ChecklistRun
+// ------------------------
+
+export async function createRun(
+  input: Omit<ChecklistRun, "id" | "createdAt" | "updatedAt"> & { id?: ID }
+): Promise<ChecklistRun> {
+  const entity: ChecklistRun = {
+    id: input.id ?? newId(),
+    templateId: input.templateId,
+    status: input.status ?? "not_started",
+    startedAt: input.startedAt ?? null,
+    completedAt: input.completedAt ?? null,
+    when: input.when ?? null,
+    items: input.items ?? [],
+    createdAt: now(),
+    updatedAt: now(),
+  };
+  await db.checklistRuns.add(entity);
+  return entity;
+}
+
+export async function updateRun(
+  id: ID,
+  changes: Partial<Omit<ChecklistRun, "id" | "createdAt">>
+) {
+  await db.checklistRuns.update(id, { ...changes, updatedAt: now() });
+}
+
+export async function deleteRun(id: ID) {
+  await db.checklistRuns.delete(id);
+}
+
+export async function listRunsForTemplate(templateId: ID) {
+  return db.checklistRuns.where({ templateId }).reverse().sortBy("updatedAt");
+}
+
+export async function listRunsForDay(dayBucketTs: number) {
+  return db.checklistRuns.where({ when: dayBucketTs }).sortBy("createdAt");
+}
+
+export async function startRun(id: ID) {
+  await updateRun(id, { status: "in_progress", startedAt: now() });
+}
+
+export async function completeRun(id: ID) {
+  const ts = now();
+  await updateRun(id, { status: "completed", completedAt: ts });
+}
+
+export async function createRunFromTemplate(opts: {
+  templateId: ID;
+  when?: number | null;
+}): Promise<ChecklistRun> {
+  const template = await db.checklistTemplates.get(opts.templateId);
+  if (!template) {
+    throw new Error("Template not found");
+  }
+  const items = (template.steps ?? []).map((s) => ({
+    stepId: s.id,
+    done: !!s.defaultDone,
+  }));
+  return createRun({
+    templateId: template.id,
+    status: "not_started",
+    when: opts.when ?? null,
+    items,
+    startedAt: null,
+    completedAt: null,
+  });
+}

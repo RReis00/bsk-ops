@@ -2,7 +2,6 @@ import { Routes, Route } from "react-router-dom";
 import A2HSBanner from "./components/A2HSBanner";
 import InstallPage from "./pages/InstallPage";
 import UpdatePrompt from "./components/UpdatePrompt";
-import DataSandbox from "./pages/DataSandbox";
 
 export default function App() {
   return (
@@ -17,7 +16,6 @@ export default function App() {
           }
         />
         <Route path="/install" element={<InstallPage />} />
-        <Route path="/data" element={<DataSandbox />} />
       </Routes>
 
       <A2HSBanner />
