@@ -10,7 +10,6 @@ It is designed to be a **PWA** (Progressive Web App), installable on mobile and 
 ![Vite](https://img.shields.io/badge/vite-%5E7-purple?logo=vite)
 ![TailwindCSS](https://img.shields.io/badge/tailwindcss-v4-38bdf8?logo=tailwindcss)
 ![TypeScript](https://img.shields.io/badge/typescript-5-blue?logo=typescript)
-![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
 
