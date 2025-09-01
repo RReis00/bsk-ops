@@ -12,7 +12,6 @@ export interface Task {
   title: string;
   description?: string;
   status: TaskStatus;
-  // "when" = bucket do dia (00:00) para queries rápidas por dia
   when?: number | null;
   dueAt?: number | null;
   checklistTemplateId?: ID | null;
@@ -67,7 +66,7 @@ export interface Summary {
   id: ID;
   targetType: TargetType;
   targetId: ID;
-  content: string; // markdown
+  content: string;
   createdAt: number;
   updatedAt: number;
 }
@@ -82,15 +81,14 @@ export interface Attachment {
   name?: string;
   mimeType?: string;
   size?: number;
-  blob?: Blob; // offline-first
-  url?: string; // remoto
+  blob?: Blob;
+  url?: string;
   createdAt: number;
   updatedAt: number;
 }
 
-// KV simples para flags de UI (ex.: "saw_banner")
 export interface KV {
-  key: string; // PK
+  key: string;
   value: unknown;
   updatedAt: number;
 }

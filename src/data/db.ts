@@ -11,14 +11,16 @@ import type {
 } from "../domain/types";
 
 // ------------------------
-// Constantes
+// Constants
 // ------------------------
+
 export const DB_NAME = "bsk_ops";
 export const DB_VERSION = 1;
 
 // ------------------------
 // Helpers
 // ------------------------
+
 export const newId = (): ID =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
@@ -35,6 +37,7 @@ export const dayBucket = (input: number | Date = new Date()): number => {
 // ------------------------
 // Dexie DB (v1)
 // ------------------------
+
 export class BskOpsDB extends Dexie {
   tasks!: EntityTable<Task, "id">;
   checklistTemplates!: EntityTable<ChecklistTemplate, "id">;
@@ -63,6 +66,7 @@ export const db = new BskOpsDB();
 // ------------------------
 // CRUD: Task
 // ------------------------
+
 export async function createTask(
   input: Omit<Task, "id" | "createdAt" | "updatedAt"> & { id?: ID }
 ): Promise<Task> {
@@ -98,4 +102,21 @@ export async function listTasksByStatus(status: TaskStatus) {
 
 export async function listTasksForDay(day: number) {
   return db.tasks.where({ when: day }).sortBy("createdAt");
+}
+
+// ------------------------
+// KV helpers (UI flags / light settings)
+// ------------------------
+
+export async function kvGet<T = unknown>(key: string): Promise<T | undefined> {
+  const row = await db.kv.get(key);
+  return row?.value as T | undefined;
+}
+
+export async function kvSet(key: string, value: unknown) {
+  await db.kv.put({ key, value, updatedAt: now() });
+}
+
+export async function kvRemove(key: string) {
+  await db.kv.delete(key);
 }
