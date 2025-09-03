@@ -10,8 +10,16 @@ import ChecklistsPage from "./pages/ChecklistsPage";
 import SummariesPage from "./pages/SummariesPage";
 import BlocksPage from "./pages/BlocksPage";
 import RecurrencesPage from "./pages/RecurrencesPage";
+import { useEffect } from "react";
+import { seedToday } from "./dev/seedToday";
 
 export default function App() {
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      void seedToday();
+    }
+  }, []);
+
   return (
     <>
       <Routes>
