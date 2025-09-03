@@ -15,6 +15,7 @@ export interface Task {
   when?: number | null;
   dueAt?: number | null;
   checklistTemplateId?: ID | null;
+  blockedReason?: string;
   createdAt: number;
   updatedAt: number;
 }

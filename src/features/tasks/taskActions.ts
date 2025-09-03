@@ -15,6 +15,24 @@ export async function toggleTaskDone(taskId: string, currentStatus: string) {
   }
 }
 
+export async function blockTask(taskId: string, reason: string | undefined) {
+  const ts = now();
+  await db.tasks.update(taskId, {
+    status: "blocked",
+    blockedReason: reason?.trim() ? reason.trim() : undefined,
+    updatedAt: ts,
+  });
+}
+
+export async function unblockTask(taskId: string) {
+  const ts = now();
+  await db.tasks.update(taskId, {
+    status: "todo",
+    blockedReason: undefined,
+    updatedAt: ts,
+  });
+}
+
 export async function deleteTask(taskId: string) {
   await db.tasks.delete(taskId);
 }
