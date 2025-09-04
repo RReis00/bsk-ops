@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "../../../data/db";
 import { useTodayTasks, type TodayFilters } from "./useTodayTasks";
 import type { Task } from "../../../domain/types";
 import {
@@ -6,6 +9,8 @@ import {
   deleteTask,
   blockTask,
   unblockTask,
+  moveTaskToWeek,
+  addPhotoAttachmentStub,
 } from "../taskActions";
 
 /* ---------- Dialog para motivo de bloqueio ---------- */
@@ -59,7 +64,7 @@ function BlockDialog({
   );
 }
 
-/* ---------- Botão de ícone discreto ---------- */
+/* ---------- Botão de ícone ---------- */
 function IconBtn({
   label,
   onClick,
@@ -106,9 +111,24 @@ function StatusPill({ task }: { task: Task }) {
 }
 
 /* ---------- Linha da tarefa ---------- */
+interface AttachmentRef {
+  targetType: string;
+  targetId: string;
+}
+
 function Row({ task }: { task: Task }) {
   const [isBusy, setIsBusy] = useState(false);
   const [showBlock, setShowBlock] = useState(false);
+
+  // nº de anexos desta tarefa (live)
+  const attachCount =
+    useLiveQuery(async () => {
+      const atts =
+        (await db.attachments.toArray()) as unknown as AttachmentRef[];
+      return atts.filter(
+        (a) => a.targetType === "task" && a.targetId === task.id
+      ).length;
+    }, [task.id]) ?? 0;
 
   async function onToggleDone() {
     try {
@@ -118,6 +138,10 @@ function Row({ task }: { task: Task }) {
       setIsBusy(false);
     }
   }
+  function handleToggleDoneClick() {
+    void onToggleDone();
+  }
+
   async function onDelete() {
     if (!window.confirm(`Eliminar "${task.title}"?`)) return;
     try {
@@ -127,6 +151,10 @@ function Row({ task }: { task: Task }) {
       setIsBusy(false);
     }
   }
+  function handleDeleteClick() {
+    void onDelete();
+  }
+
   async function onUnblock() {
     try {
       setIsBusy(true);
@@ -135,19 +163,36 @@ function Row({ task }: { task: Task }) {
       setIsBusy(false);
     }
   }
+  function handleUnblockClick() {
+    void onUnblock();
+  }
 
-  // Wrappers síncronos para satisfazer no-misused-promises
-  function handleToggleDoneClick() {
-    void onToggleDone();
-  }
-  function handleDeleteClick() {
-    void onDelete();
-  }
   function handleBlockClick() {
     setShowBlock(true);
   }
-  function handleUnblockClick() {
-    void onUnblock();
+
+  async function onMoveToWeek() {
+    try {
+      setIsBusy(true);
+      await moveTaskToWeek(task.id);
+    } finally {
+      setIsBusy(false);
+    }
+  }
+  function handleMoveToWeekClick() {
+    void onMoveToWeek();
+  }
+
+  async function onAddPhoto() {
+    try {
+      setIsBusy(true);
+      await addPhotoAttachmentStub(task);
+    } finally {
+      setIsBusy(false);
+    }
+  }
+  function handleAddPhotoClick() {
+    void onAddPhoto();
   }
 
   return (
@@ -197,6 +242,22 @@ function Row({ task }: { task: Task }) {
           )}
 
           <IconBtn
+            label="Adicionar foto (stub)"
+            onClick={handleAddPhotoClick}
+            disabled={isBusy}
+          >
+            📎
+          </IconBtn>
+
+          <IconBtn
+            label="Mover para semana"
+            onClick={handleMoveToWeekClick}
+            disabled={isBusy}
+          >
+            ➜
+          </IconBtn>
+
+          <IconBtn
             label="Eliminar"
             onClick={handleDeleteClick}
             disabled={isBusy}
@@ -206,14 +267,22 @@ function Row({ task }: { task: Task }) {
         </div>
       </div>
 
-      {/* Linha secundária: due + estado + motivo */}
+      {/* Linha secundária: due + anexos + estado + motivo */}
       <div className="mt-2 flex flex-wrap items-center gap-2 text-xs opacity-80">
         {task.dueAt ? (
           <span className="rounded-md border border-white/10 px-2 py-0.5">
             Due: {new Date(task.dueAt).toLocaleTimeString()}
           </span>
         ) : null}
+
+        {attachCount > 0 ? (
+          <span className="rounded-md border border-white/10 px-2 py-0.5">
+            📎 {attachCount}
+          </span>
+        ) : null}
+
         <StatusPill task={task} />
+
         {task.status === "blocked" && task.blockedReason ? (
           <span className="rounded-md border border-yellow-500/30 bg-yellow-500/10 px-2 py-0.5 text-yellow-100/90">
             {task.blockedReason}
@@ -270,8 +339,13 @@ export default function TodayList({
     return (
       <div className="mt-6 rounded-xl border border-dashed border-white/15 p-6 text-center">
         <p className="font-medium">Nada para hoje…</p>
-        <p className="mt-1 text-sm opacity-70">
-          Usa “Select from Week” (em breve) para puxar tarefas da semana.
+        <p className="mt-2">
+          <Link
+            to="/week"
+            className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-sm hover:bg-white/10"
+          >
+            Select from Week
+          </Link>
         </p>
       </div>
     );

@@ -6,7 +6,6 @@ export function onUpdate(cb: (runUpdate: () => void) => void) {
   notify = cb;
 }
 
-// Observadores para controlar visibilidade do prompt de update (p/ esconder A2HS)
 const listeners: ((visible: boolean) => void)[] = [];
 export function onUpdateVisible(cb: (visible: boolean) => void) {
   listeners.push(cb);
@@ -28,7 +27,7 @@ export function initPWA() {
       });
     },
     onOfflineReady() {
-      // opcional: toast "Pronta para offline"
+      // something in the future
     },
   });
 }

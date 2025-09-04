@@ -34,7 +34,6 @@ export async function seedToday() {
     },
   ]);
 
-  // marca que já semeou
   await db.kv.put({ key: "dev_seed_v1_done", value: true, updatedAt: ts });
 
   console.warn("✅ Seed de tarefas de hoje criado!");

@@ -1,4 +1,3 @@
-// src/components/A2HSBanner.tsx
 import { useEffect, useState } from "react";
 import { onUpdateVisible } from "../pwaUpdate";
 import { useA2HS } from "../hooks/useA2HS";
