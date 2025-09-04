@@ -13,7 +13,6 @@ import {
   addPhotoAttachmentStub,
 } from "../taskActions";
 
-/* ---------- Dialog para motivo de bloqueio ---------- */
 function BlockDialog({
   initialReason,
   onCancel,
@@ -64,7 +63,6 @@ function BlockDialog({
   );
 }
 
-/* ---------- Botão de ícone ---------- */
 function IconBtn({
   label,
   onClick,
@@ -94,7 +92,6 @@ function IconBtn({
   );
 }
 
-/* ---------- Pílula de estado ---------- */
 function StatusPill({ task }: { task: Task }) {
   const base = "rounded-full px-2 py-0.5 text-xs";
   if (task.status === "done")
@@ -110,7 +107,6 @@ function StatusPill({ task }: { task: Task }) {
   return <span className={`${base} bg-white/10 text-white/80`}>todo</span>;
 }
 
-/* ---------- Linha da tarefa ---------- */
 interface AttachmentRef {
   targetType: string;
   targetId: string;
@@ -120,7 +116,6 @@ function Row({ task }: { task: Task }) {
   const [isBusy, setIsBusy] = useState(false);
   const [showBlock, setShowBlock] = useState(false);
 
-  // nº de anexos desta tarefa (live)
   const attachCount =
     useLiveQuery(async () => {
       const atts =
@@ -197,7 +192,6 @@ function Row({ task }: { task: Task }) {
 
   return (
     <li className="group rounded-xl border border-white/10 p-3">
-      {/* Linha principal: título + ações à direita */}
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-base font-semibold leading-snug break-words">
@@ -267,7 +261,6 @@ function Row({ task }: { task: Task }) {
         </div>
       </div>
 
-      {/* Linha secundária: due + anexos + estado + motivo */}
       <div className="mt-2 flex flex-wrap items-center gap-2 text-xs opacity-80">
         {task.dueAt ? (
           <span className="rounded-md border border-white/10 px-2 py-0.5">
@@ -311,7 +304,6 @@ function Row({ task }: { task: Task }) {
   );
 }
 
-/* ---------- Lista de Hoje ---------- */
 export default function TodayList({
   search,
   filters,
