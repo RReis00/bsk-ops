@@ -1,6 +1,7 @@
 import { useState } from "react";
 import FilterChips from "../features/tasks/today/FilterChips";
 import TodayList from "../features/tasks/today/TodayList";
+import TodayToolbar from "../features/tasks/today/TodayToolbar";
 import type { TodayFilters } from "../features/tasks/today/useTodayTasks";
 
 export default function TodayPage() {
@@ -26,6 +27,8 @@ export default function TodayPage() {
       <div className="mt-3">
         <FilterChips filters={filters} onChange={setFilters} />
       </div>
+
+      <TodayToolbar search={search} filters={filters} />
 
       <TodayList search={search} filters={filters} />
     </section>

@@ -1,4 +1,3 @@
-// src/features/tasks/taskActions.ts
 import { db, now } from "../../data/db";
 import type { Task, Attachment } from "../../domain/types";
 
@@ -36,17 +35,15 @@ export async function deleteTask(taskId: string) {
 export async function moveTaskToWeek(taskId: string) {
   const ts = now();
   await db.tasks.update(taskId, {
-    when: null, // backlog da semana
+    when: null,
     updatedAt: ts,
   });
 }
 
-/** Cria um attachment "photo" (stub) associado à task. */
 export async function addPhotoAttachmentStub(task: Task) {
   const ts = now();
   const id = crypto.randomUUID();
 
-  // Se o teu AttachmentKind não inclui "photo", a coerção abaixo garante compatibilidade de tipo.
   const att: Attachment = {
     id,
     targetType: "task",
@@ -59,6 +56,5 @@ export async function addPhotoAttachmentStub(task: Task) {
     updatedAt: ts,
   };
 
-  // usamos put porque fornecemos id; evita duplicação se clicares outra vez
   await db.attachments.put(att);
 }
